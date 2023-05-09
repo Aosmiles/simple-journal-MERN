@@ -2,6 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 dotenv.config();
 import morgan from "morgan";
+import journalEntryRoutes from "./routes/journalEntryRoutes.js";
 
 const port = process.env.PORT || 5000;
 const app = express();
@@ -11,9 +12,7 @@ app.use(express.json());
 app.use(morgan("dev"));
 
 //routes
-app.get("/", (req, res) => {
-  res.json({ message: "Hello World" });
-});
+app.use("/api/journal", journalEntryRoutes);
 
 app.listen(port, () => {
   console.log(`Listening at http://localhost:${port}`);
