@@ -5,6 +5,7 @@ const journalEntrySchema = new Schema(
   {
     text: { type: String, required: true },
     color: { type: String, required: true },
+    mood: { type: String, required: true },
   },
   { timestamps: true }
 );
