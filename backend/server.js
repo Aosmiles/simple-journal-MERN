@@ -4,6 +4,7 @@ dotenv.config();
 import mongoose from "mongoose";
 import morgan from "morgan";
 import journalEntryRoutes from "./routes/journalEntryRoutes.js";
+import errorHandler from "./middleware/errorHandler.js";
 
 const port = process.env.PORT || 5000;
 const app = express();
@@ -15,6 +16,9 @@ app.use(morgan("dev"));
 
 //routes
 app.use("/api/journal", journalEntryRoutes);
+
+//error handler
+app.use(errorHandler);
 
 //connect to db
 const connectonOptions = {
