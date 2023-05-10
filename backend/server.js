@@ -17,11 +17,13 @@ app.use(morgan("dev"));
 app.use("/api/journal", journalEntryRoutes);
 
 //connect to db
+const connectonOptions = {
+  dbname: process.env.MONGO_DBNAME,
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+};
 mongoose
-  .connect(process.env.MONGO_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
+  .connect(process.env.MONGO_URI, connectonOptions)
   .then(() => {
     console.log("Connected to MongoDB");
     app.listen(port, () => {
