@@ -1,4 +1,5 @@
 import express from "express";
+import JournalEntry from "../models/journalEntryModel.js";
 
 const router = express.Router();
 
@@ -13,8 +14,15 @@ router.get("/:id", (req, res) => {
 });
 
 //create new entry
-router.post("/", (req, res) => {
-  res.json({ message: "POST new entry" });
+router.post("/", async (req, res) => {
+  const { text, color } = req.body;
+  try {
+    const entry = await JournalEntry.create({ text, color });
+    res.status(200).json(entry);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+  // res.json({ message: "POST new entry" });
 });
 
 //update entry
