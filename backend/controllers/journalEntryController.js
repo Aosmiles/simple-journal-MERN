@@ -36,15 +36,11 @@ const createNewEntry = async (req, res, next) => {
 //update entry
 const updateEntry = async (req, res, next) => {
   const { id } = req.params;
-  const { text, color, mood } = req.body;
 
   //check if id is valid
   checkID(id, res);
 
-  //check if required fields are present
-  checkFields(text, color, mood, res);
-
-  const updatedEntry = { text, color, mood, _id: id };
+  const updatedEntry = { ...req.body };
   const entry = await journalEntryModel.findByIdAndUpdate(id, updatedEntry, {
     new: true,
   });
