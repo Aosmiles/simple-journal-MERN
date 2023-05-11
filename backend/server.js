@@ -20,18 +20,6 @@ app.use("/api/journal", journalEntryRoutes);
 //error handler
 app.use(errorHandler);
 
-//connect to db
-const connectonOptions = {
-  dbname: process.env.MONGO_DBNAME,
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-};
-mongoose
-  .connect(process.env.MONGO_URI, connectonOptions)
-  .then(() => {
-    console.log("Connected to MongoDB");
-    app.listen(port, () => {
-      console.log(`Listening at http://localhost:${port}`);
-    });
-  })
-  .catch((error) => console.log(error));
+app.listen(port, () => {
+  console.log(`Listening at http://localhost:${port}`);
+});
