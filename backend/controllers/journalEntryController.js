@@ -66,7 +66,7 @@ const deleteEntry = async (req, res, next) => {
   //check if entry exists
   checkEntry(entry, res);
 
-  res.status(200).json({ message: "Entry deleted successfully" });
+  res.status(200).json({ message: "Entry deleted successfully", id: id });
 };
 
 export default {
