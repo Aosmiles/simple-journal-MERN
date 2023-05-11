@@ -3,5 +3,5 @@ export default (error, req, res, next) => {
 
   const stack = process.env.NODE_ENV === "production" ? null : error.stack;
   console.log(error.stack);
-  res.status(statusCode).json({ error: error.message, stack: stack });
+  res.status(statusCode).json({ message: error.message, stack: stack });
 };
