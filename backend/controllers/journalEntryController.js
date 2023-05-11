@@ -12,19 +12,14 @@ const getSingleEntry = async (req, res, next) => {
   const { id } = req.params;
 
   //check if id is valid
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    res.status(400);
-    throw new Error("Invalid ID");
-  }
+  checkID(id, res);
 
   const entry = await journalEntryModel.findById(id);
+
   //check if entry exists
-  if (entry) {
-    res.status(200).json(entry);
-  } else {
-    res.status(404);
-    throw new Error("Entry not found");
-  }
+  checkEntry(entry, res);
+
+  res.status(200).json(entry);
 };
 
 //create new entry
@@ -32,10 +27,7 @@ const createNewEntry = async (req, res, next) => {
   const { text, color, mood } = req.body;
 
   //check if required fields are present
-  if (!text || !color || !mood) {
-    res.status(400);
-    throw new Error("Missing required fields");
-  }
+  checkFields(text, color, mood, res);
 
   const entry = await journalEntryModel.create({ text, color, mood });
   res.status(200).json(entry);
@@ -47,21 +39,20 @@ const updateEntry = async (req, res, next) => {
   const { text, color, mood } = req.body;
 
   //check if id is valid
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    res.status(400);
-    throw new Error("Invalid ID");
-  }
+  checkID(id, res);
 
   //check if required fields are present
-  if (!text || !color || !mood) {
-    res.status(400);
-    throw new Error("Missing required fields");
-  }
+  checkFields(text, color, mood, res);
 
   const updatedEntry = { text, color, mood, _id: id };
+  const entry = await journalEntryModel.findByIdAndUpdate(id, updatedEntry, {
+    new: true,
+  });
 
-  await journalEntryModel.findByIdAndUpdate(id, updatedEntry, { new: true });
-  res.status(200).json(updatedEntry);
+  //check if entry exists
+  checkEntry(entry, res);
+
+  res.status(200).json(entry);
 };
 
 //delete entry
@@ -69,11 +60,12 @@ const deleteEntry = async (req, res, next) => {
   const { id } = req.params;
 
   //check if id is valid
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    res.status(400);
-    throw new Error("Invalid ID");
-  }
-  await journalEntryModel.findByIdAndRemove(id);
+  checkID(id, res);
+  const entry = await journalEntryModel.findByIdAndRemove(id);
+
+  //check if entry exists
+  checkEntry(entry, res);
+
   res.status(200).json({ message: "Entry deleted successfully" });
 };
 
@@ -84,3 +76,24 @@ export default {
   updateEntry,
   deleteEntry,
 };
+
+function checkEntry(entry, res) {
+  if (!entry) {
+    res.status(404);
+    throw new Error("Entry not found");
+  }
+}
+
+function checkFields(text, color, mood, res) {
+  if (!text || !color || !mood) {
+    res.status(400);
+    throw new Error("Missing required fields");
+  }
+}
+
+function checkID(id, res) {
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    res.status(400);
+    throw new Error("Invalid ID");
+  }
+}
