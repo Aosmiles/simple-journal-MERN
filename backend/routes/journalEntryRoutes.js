@@ -1,21 +1,22 @@
 import express from "express";
+import asyncHandler from "express-async-handler";
 import journalEntryController from "../controllers/journalEntryController.js";
 
 const router = express.Router();
 
 //get all entries
-router.get("/", journalEntryController.getAllEntries);
+router.get("/", asyncHandler(journalEntryController.getAllEntries));
 
 //get single entry
-router.get("/:id", journalEntryController.getSingleEntry);
+router.get("/:id", asyncHandler(journalEntryController.getSingleEntry));
 
 //create new entry
-router.post("/", journalEntryController.createNewEntry);
+router.post("/", asyncHandler(journalEntryController.createNewEntry));
 
 //update entry
-router.put("/:id", journalEntryController.updateEntry);
+router.put("/:id", asyncHandler(journalEntryController.updateEntry));
 
 //delete entry
-router.delete("/:id", journalEntryController.deleteEntry);
+router.delete("/:id", asyncHandler(journalEntryController.deleteEntry));
 
 export default router;
