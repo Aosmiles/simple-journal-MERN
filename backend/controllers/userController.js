@@ -1,5 +1,6 @@
 import asyncHandler from "express-async-handler";
 import User from "../models/userModel.js";
+import generateToken from "../utility/generateToken.js";
 
 // @desc    Register a new user
 // @route   POST /api/users/register
@@ -17,30 +18,48 @@ const registerUser = asyncHandler(async (req, res) => {
   //create user
   const user = await User.create({ username, email, password });
 
-  if (user) {
-    res.status(201).json({
-      _id: user._id,
-      username: user.username,
-      email: user.email,
-    });
-  } else {
+  //check if user was created
+  if (!user) {
     res.status(400);
     throw new Error("Invalid user data");
   }
+
+  generateToken(res, user._id);
+  res.status(201).json({
+    _id: user._id,
+    username: user.username,
+    email: user.email,
+  });
 });
 
 // @desc    Authenticate user & get token
 // @route   POST /api/users/login
 // @access  Public
 const authUser = asyncHandler(async (req, res) => {
-  res.send("login");
+  const { email, password } = req.body;
+
+  const user = await User.findOne({ email });
+
+  //check if user exists and password is correct
+  if (!user || !(await user.matchPassword(password))) {
+    res.status(401);
+    throw new Error("Invalid email or password");
+  }
+
+  generateToken(res, user._id);
+  res.status(201).json({
+    _id: user._id,
+    username: user.username,
+    email: user.email,
+  });
 });
 
 // @desc    Logout user
 // @route   GET /api/users/logout
 // @access  Private
 const logout = asyncHandler(async (req, res) => {
-  res.send("logout");
+  res.cookie("token", "", { httpOnly: true, expires: new Date(0) });
+  res.status(200).json({ message: "Logged out" });
 });
 
 // @desc    Get user profile
