@@ -2,6 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 dotenv.config();
 import morgan from "morgan";
+import cookieParser from "cookie-parser";
 import mongoose from "mongoose";
 import connectDB from "./db/connectDB.js";
 import journalEntryRoutes from "./routes/journalEntryRoutes.js";
@@ -17,6 +18,7 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan("dev"));
+app.use(cookieParser());
 
 //routes
 app.use("/api/journal", journalEntryRoutes);
