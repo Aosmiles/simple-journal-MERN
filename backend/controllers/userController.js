@@ -66,14 +66,49 @@ const logout = asyncHandler(async (req, res) => {
 // @route   GET /api/users/profile
 // @access  Private
 const getUserProfile = asyncHandler(async (req, res) => {
-  res.send("profile");
+  const user = {
+    _id: req.user._id,
+    username: req.user.username,
+    email: req.user.email,
+  };
+  res.status(200).json(user);
 });
 
 // @desc    Update user profile
 // @route   PUT /api/users/profile
 // @access  Private
 const updateUserProfile = asyncHandler(async (req, res) => {
-  res.send("update");
+  //get user
+  const user = await User.findById(req.user._id);
+
+  //check if user exists
+  if (!user) {
+    res.status(404);
+    throw new Error("User not found");
+  }
+
+  //update user
+  user.username = req.body.username || user.username; //if username is not provided, use the existing username
+  user.email = req.body.email || user.email; //if email is not provided, use the existing email
+  if (req.body.password) {
+    user.password = req.body.password;
+  }
+
+  //save user
+  const updatedUser = await user.save();
+
+  //check if user was updated
+  if (!updatedUser) {
+    res.status(400);
+    throw new Error("Invalid user data");
+  }
+
+  generateToken(res, updatedUser._id);
+  res.status(200).json({
+    _id: updatedUser._id,
+    username: updatedUser.username,
+    email: updatedUser.email,
+  });
 });
 
 export default {
