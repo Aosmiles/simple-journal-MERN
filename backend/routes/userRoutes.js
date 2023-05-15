@@ -7,7 +7,7 @@ router.post("/", userController.registerUser);
 
 router.post("/auth", userController.authUser);
 
-router.get("/logout", userController.logout);
+router.post("/logout", userController.logout);
 
 router.get("/profile", userController.getUserProfile);
 
