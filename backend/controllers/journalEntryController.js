@@ -1,14 +1,15 @@
 import journalEntryModel from "../models/journalEntryModel.js";
 import mongoose from "mongoose";
+import asyncHandler from "express-async-handler";
 
 //get all entries
-const getAllEntries = async (req, res, next) => {
+const getAllEntries = asyncHandler(async (req, res, next) => {
   const entries = await journalEntryModel.find({});
   res.status(200).json(entries);
-};
+});
 
 //get single entry
-const getSingleEntry = async (req, res, next) => {
+const getSingleEntry = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
 
   //check if id is valid
@@ -20,10 +21,10 @@ const getSingleEntry = async (req, res, next) => {
   checkEntry(entry, res);
 
   res.status(200).json(entry);
-};
+});
 
 //create new entry
-const createNewEntry = async (req, res, next) => {
+const createNewEntry = asyncHandler(async (req, res, next) => {
   const { text, color, mood } = req.body;
 
   //check if required fields are present
@@ -31,10 +32,10 @@ const createNewEntry = async (req, res, next) => {
 
   const entry = await journalEntryModel.create({ text, color, mood });
   res.status(200).json(entry);
-};
+});
 
 //update entry
-const updateEntry = async (req, res, next) => {
+const updateEntry = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
 
   //check if id is valid
@@ -49,10 +50,10 @@ const updateEntry = async (req, res, next) => {
   checkEntry(entry, res);
 
   res.status(200).json(entry);
-};
+});
 
 //delete entry
-const deleteEntry = async (req, res, next) => {
+const deleteEntry = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
 
   //check if id is valid
@@ -63,7 +64,7 @@ const deleteEntry = async (req, res, next) => {
   checkEntry(entry, res);
 
   res.status(200).json({ message: "Entry deleted successfully", id: id });
-};
+});
 
 export default {
   getAllEntries,
