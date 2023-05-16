@@ -2,13 +2,38 @@ import journalEntryModel from "../models/journalEntryModel.js";
 import mongoose from "mongoose";
 import asyncHandler from "express-async-handler";
 
-//get all entries
+// @desc    Get all entries
+// @route   GET /api/journal-entries
+// @access  Private
 const getAllEntries = asyncHandler(async (req, res, next) => {
-  const entries = await journalEntryModel.find({});
+  const userId = req.user._id;
+  const entries = await journalEntryModel
+    .find({ userId })
+    .sort({ createdAt: -1 });
   res.status(200).json(entries);
 });
 
-//get single entry
+// @desc    Create new entry
+// @route   POST /api/journal-entries
+// @access  Private
+const createNewEntry = asyncHandler(async (req, res, next) => {
+  const { text, color, mood } = req.body;
+
+  //check if required fields are present
+  checkFields(text, color, mood, res);
+
+  const entry = await journalEntryModel.create({
+    text,
+    color,
+    mood,
+    userId: req.user._id,
+  });
+  res.status(200).json(entry);
+});
+
+// @desc    Get single entry
+// @route   GET /api/journal-entries/:id
+// @access  Private
 const getSingleEntry = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
 
@@ -17,39 +42,46 @@ const getSingleEntry = asyncHandler(async (req, res, next) => {
 
   const entry = await journalEntryModel.findById(id);
 
+  //check if user is authorized to view entry
+  if (entry.userId.toString() !== req.user._id.toString()) {
+    res.status(401);
+    throw new Error("Not authorized to view this entry");
+  }
+
   //check if entry exists
   checkEntry(entry, res);
 
   res.status(200).json(entry);
 });
 
-//create new entry
-const createNewEntry = asyncHandler(async (req, res, next) => {
-  const { text, color, mood } = req.body;
-
-  //check if required fields are present
-  checkFields(text, color, mood, res);
-
-  const entry = await journalEntryModel.create({ text, color, mood });
-  res.status(200).json(entry);
-});
-
-//update entry
+// @desc    Update entry
+// @route   PUT /api/journal-entries/:id
+// @access  Private
 const updateEntry = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
 
   //check if id is valid
   checkID(id, res);
 
-  const updatedEntry = { ...req.body };
-  const entry = await journalEntryModel.findByIdAndUpdate(id, updatedEntry, {
-    new: true,
-  });
+  const entryToUpdate = await journalEntryModel.findById(id);
+
+  //check if user is authorized to update entry
+  if (entryToUpdate.userId.toString() !== req.user._id.toString()) {
+    res.status(401);
+    throw new Error("Not authorized to update this entry");
+  }
 
   //check if entry exists
-  checkEntry(entry, res);
+  checkEntry(entryToUpdate, res);
 
-  res.status(200).json(entry);
+  const { text, color, mood } = req.body;
+  entryToUpdate.text = text ?? entryToUpdate.text;
+  entryToUpdate.color = color ?? entryToUpdate.color;
+  entryToUpdate.mood = mood ?? entryToUpdate.mood;
+
+  const updatedEntry = await entryToUpdate.save();
+
+  res.status(200).json(updatedEntry);
 });
 
 //delete entry
