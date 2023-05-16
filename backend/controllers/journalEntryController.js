@@ -84,16 +84,27 @@ const updateEntry = asyncHandler(async (req, res, next) => {
   res.status(200).json(updatedEntry);
 });
 
-//delete entry
+//  @desc   Delete entry
+//  @route  DELETE /api/journal-entries/:id
+//  @access Private
 const deleteEntry = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
 
   //check if id is valid
   checkID(id, res);
-  const entry = await journalEntryModel.findByIdAndRemove(id);
+
+  const entry = await journalEntryModel.findById(id);
 
   //check if entry exists
   checkEntry(entry, res);
+
+  //check if user is authorized to delete entry
+  if (entry.userId.toString() !== req.user._id.toString()) {
+    res.status(401);
+    throw new Error("Not authorized to delete this entry");
+  }
+
+  await entry.deleteOne();
 
   res.status(200).json({ message: "Entry deleted successfully", id: id });
 });
