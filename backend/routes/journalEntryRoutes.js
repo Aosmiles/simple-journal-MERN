@@ -1,7 +1,10 @@
 import express from "express";
 import journalEntryController from "../controllers/journalEntryController.js";
+import { authenticate } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
+
+router.use(authenticate);
 
 //get all entries
 router.get("/", journalEntryController.getAllEntries);
