@@ -1,7 +1,7 @@
 const App = () => {
   return (
     <>
-      <div>My MERN App</div>
+      <div className="text-4xl text-red-400">My MERN App</div>
     </>
   );
 };
